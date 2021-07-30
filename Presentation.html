@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>BayesOpt Presentation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Peyman Kor" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/sfah.css" type="text/css" />
+    <link rel="stylesheet" href="css/fonts.css" type="text/css" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+&lt;!-- &lt;div class="my-footer"&gt;&lt;span&gt;arm.rbind.io/slides/xaringan&lt;/span&gt;&lt;/div&gt; --&gt;
+
+&lt;!-- this adds the link footer to all slides, depends on my-footer class in css--&gt;
+&lt;!-- --- --&gt;
+&lt;!-- name: xaringan-title --&gt;
+&lt;!-- class: center, top --&gt;
+&lt;!-- background-image: url(test2.jpg) --&gt;
+&lt;!-- background-size: cover --&gt;
+
+&lt;!-- # BayesOpt : A New Sample Efficient Workflow for Reservoir Optimization under Uncertainty --&gt;
+
+&lt;!-- &lt;!-- #&lt;img src="https://user-images.githubusercontent.com/163582/45438104-ea200600-b67b-11e8-80fa-d9f2a99a03b0.png" alt="Sharingan" width="180" /&gt; --&gt; --&gt;
+
+&lt;!-- &lt;!-- ### .fancy[Making slides in R Markdown] --&gt; --&gt;
+
+&lt;!-- &lt;br&gt; --&gt;
+&lt;!-- &lt;br&gt; --&gt;
+&lt;!-- ### .large[Peyman Kor | Energy Resource Department, University of Stavanger] --&gt;
+&lt;!-- ### .large[Presentation for DigiRes Meeting, 30 June 2021] --&gt;
+&lt;!-- &lt;!-- this ends up being the title slide since seal = FALSE--&gt; --&gt;
+---
+
+class: center, middle
+## Part I) Problem statement
+
+---
+## Part I) Problem statement:
+
+--
+
+- In reservoir optimization, we can have different objectives: Recovery Factor (RF), Net Present Value (NPV), ...
+
+$$
+`\begin{aligned}
+&amp; \underset{\mathbf{u}}{\text{maximize}} &amp; &amp; Obj \ Func(\mathbf{u}) \\
+&amp; \text{subject to}
+&amp; &amp; \mathbf{u} \subseteq U \\
+\end{aligned}`
+$$
+
+--
+
+- `\(\mathbf{u}\)` is a decision variable: could be injection rate(s), well location(s) or order of drilling well(s). In this paper (Part II of numerical examples), `\(\mathbf{u}\)` is the injection rates of 8 wells in 10 years. (Reservoir Life Cycle) 
+
+--
+
+- **&lt;span style="color:blue"&gt; Deterministic Optimization:&lt;/span&gt;**
+
+`$$Obj \ Func(\mathbf{u})=J(\mathbf{u, G})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_oq_{o,j,k}(\mathbf{u, G}) - \sum_{j=1}^{N_p}p_{wp}q_{wp,j,k}(\mathbf{u, G}) \sum_{j=1}^{N_{wi}}p_{wi}q_{wi,j,k}(\mathbf{u, G}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
+
+- The `\(G\)` in above Equation is "the geological model".
+--
+
+`$$\color{blue} {\text{Robust Optimization}} \qquad \qquad \overline{J}(\mathbf{u}) = \frac{\sum_{re=1}^{n_e} J(\mathbf{u,G_{re}})}{n_e}$$`
+--
+---
+## Part I) Problem Statement
+
+`$$\color{blue} {\text{Robust Optimization}} \qquad \qquad \overline{J}(\mathbf{u}) = \frac{\sum_{re=1}^{n_e} J(\mathbf{u,G_{re}})}{n_e}$$`
+
+--
+
+#### Example case: 
+
+- Lets' say you are optimizing the well control problem with dimension, `\(d=10\)`.
+
+--
+
+- Number of 3D geological realizations is `\(n_e=100\)` and running each possible `\(u^*\)`in commercial reservoir simulator, at each realization takes ~ 1 hour. Then time it takes to calculate `\(\overline{J}(u^*)\)` is ~ 100 hours.
+
+--
+
+- With 6 month CPU running time budget, the total available budget is to run is ~ 50.
+
+--
+
+- Availability of only 50 `\(\overline{J}(u^*)\)` evaluations is a small budget, considering the ten-dimensional optimization problem.
+
+--
+
+#### **&lt;span style="color:red"&gt; Problem:&lt;/span&gt;**&lt;span style="color:red"&gt;  `\(\overline{J}(u)\)` is expensive function, meaning the # times we can evaluate it is severely limited. &lt;/span&gt;
+
+
+&lt;!-- #### **&lt;span style="color:green"&gt; Solution:&lt;/span&gt;**&lt;span style="color:green"&gt;  Bayesian Optimization (BayesOpt) propose a new workflow to conduct optimization at the small `\(\overline{J}(u)\)` budget, without affecting the optimum solution. --&gt;
+
+---
+
+## Part I) Problem Statement: OLYMPUS Optimization Benchmark Challenge (what can be learned?)
+
+--
+
+- Task 2: field development optimization
+- Winner: V. L. S. Silva et al. Petrobras Research and Development Center – CENPES
+--
+
+- Optimization Algorithm: Variant of Genetic Algorithm (GenocopIII)
+
+--
+
+&lt;img src="best_opt.jpg" width="40%" style="display: block; margin: auto;" /&gt;
+
+--
+
+- Problem:  **&lt;span style="color:red"&gt; 105,000 Reservoir Simulations Needed&lt;/span&gt;**
+- Assume 1 hr forward run : `\(\frac{105000\times1}{24\times 360}\)` ~ 12 years
+
+---
+
+## Part I) Problem Statement: How does the **&lt;span style="color:blue"&gt; industry&lt;/span&gt;** deal with this problem?
+
+--
+
+1) Work with a "one" geological model
+
+`$$J(\mathbf{u, G})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_oq_{o,j,k}(\mathbf{u, G}) - \sum_{j=1}^{N_p}p_{wp}q_{wp,j,k}(\mathbf{u, G}) \sum_{j=1}^{N_{wi}}p_{wi}q_{wi,j,k}(\mathbf{u, G}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
+--
+
+- **&lt;span style="color:red"&gt; Problem:&lt;/span&gt;** Ignoring uncertainty in geological model.
+
+--
+
+2) Calculate mean of geological realizations and optimize that one
+
+`$$J(\mathbf{u, \overline{G}})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_oq_{o,j,k}(\mathbf{u, \overline{G}}) - \sum_{j=1}^{N_p}p_{wp}q_{wp,j,k}(\mathbf{u, \overline{G}}) \sum_{j=1}^{N_{wi}}p_{wi}q_{wi,j,k}(\mathbf{u, \overline{G}}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
+--
+
+- **&lt;span style="color:red"&gt; Problem:&lt;/span&gt;** Problematic in non-linear, non-smooth forward model, like reservoir simulation.
+
+--
+
+3) Upscaling the fine-grid geological model to coarse grid
+- **&lt;span style="color:red"&gt; Problem:&lt;/span&gt;** Inherently difficult to find representative coarse-gird model.
+
+---
+
+## Part I) Problem Statement: How does  **&lt;span style="color:blue"&gt; academic research&lt;/span&gt;** deal with this problem?
+
+--
+
+#### Two general approaches have been introduced:
+
+--
+
+1) **&lt;span style="color:red"&gt; Targets the flow problem&lt;/span&gt;**
+
+- Replacing the full-Physic (high-fidelity) flow simulation model with a reduced order model (lower-fidelity) 
+
+--
+
+- `$$J(\mathbf{u, G})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_o \color{red}{q_{o,j,k}} (\mathbf{u, G}) - \sum_{j=1}^{N_p}p_{wp}\color{red}{q_{wp,j,k}}(\mathbf{u, G}) \sum_{j=1}^{N_{wi}}p_{wi}\color{red}{q_{wi,j,k}}(\mathbf{u, G}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
+
+--
+
+- Capacitance-Resistance Models, ML and DL-based Surrogates, Streamline-based Simulation,...(2017 Paper)
+
+--
+
+2)  **&lt;span style="color:red"&gt; Target the Dimension of Decision Variable/Number of Realizations&lt;/span&gt;**
+
+--
+
+- Trigonometric, polynomial approximation, and principal component analysis 
+- Transfer `\(\mathbf{u}\)` from `\(D\)` dimension to `\(D^-\)`, where `\(D^- &lt; D\)`
+- Or Transfer `\(n_e\)` from  `\(re\)` dimension to `\(re^-\)`, where `\(re^- &lt; re\)`
+
+---
+
+## Bayesian Optimization: This Paper
+
+--
+
+- Neither Category (1) or (2)
+
+--
+
+- **&lt;span style="color:red"&gt; Category (3): make optimization algorithm more efficient than PSO, GA, EnOpt...&lt;/span&gt;**
+--
+
+- Efficiency means: as few as possible use of 
+- `$$\overline{J}(\mathbf{u}) = \frac{\sum_{re=1}^{n_e} J(\mathbf{u,G_{re}})}{n_e}$$`
+- Without sacrificing the near-optimal solution
+
+--
+---
+
+## Part II) Bayesian Optimization - How it works? 
+
+--
+
+- 1D Case: True Function to be Optimized
+
+--
+
+
+
+&lt;img src="Presentation_files/figure-html/onedplot-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+## Part II) Bayesian Optimization - How it works? 
+
+--
+
+- What is Initialization?
+
+--
+
+&lt;img src="Presentation_files/figure-html/unnamed-chunk-3-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+
+---
+##  Part II) Bayesian Optimization - How it works? 
+
+--
+
+- Build probabilistic Model out of initial points?
+
+--
+
+&lt;img src="Presentation_files/figure-html/exampleshow-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Part II) Bayesian Optimization - How it works? 
+--
+
+- How to find the next point to query from the expensive function?
+
+--
+
+&lt;img src="Presentation_files/figure-html/exampleshow0-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Part II) Bayesian Optimization - How it works? 
+
+--
+
+- How to find the next point to query from the expensive function?
+
+--
+&lt;img src="Presentation_files/figure-html/exampleshow1-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="Presentation_files/figure-html/unnamed-chunk-4-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Part II) Bayesian Optimization - How it works? 
+
+--
+
+- What is sequential sampling in BayesOpt?
+
+--
+&lt;img src="Presentation_files/figure-html/allinone-1.png" width="1152" style="display: block; margin: auto auto auto 0;" /&gt;
+
+---
+
+## Part III) Who else is working on Bayesian Optimization for subsurface application?
+
+--
+
+- Unaware of any peer-reviewed publication about this algorithm for optimization
+
+--
+
+- Parallel work in the US, (The University of Texas at Austin + IBM)
+
+&lt;img src="uta.png" width="60%" style="display: block; margin: auto;" /&gt;
+
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script src="https://platform.twitter.com/widgets.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+(function(time) {
+  var d2 = function(number) {
+    return ('0' + number).slice(-2); // left-pad 0 to minutes/seconds
+  },
+
+  time_format = function(total) {
+    var secs = Math.abs(total) / 1000;
+    var h = Math.floor(secs / 3600);
+    var m = Math.floor(secs % 3600 / 60);
+    var s = Math.round(secs % 60);
+    var res = d2(m) + ':' + d2(s);
+    if (h > 0) res = h + ':' + res;
+    return res;  // [hh:]mm:ss
+  },
+
+  slide_number_div = function(i) {
+    return document.getElementsByClassName('remark-slide-number').item(i);
+  },
+
+  current_page_number = function(i) {
+    return slide_number_div(i).firstChild.textContent;  // text "i / N"
+  };
+
+  var timer = document.createElement('span'); timer.id = 'slide-time-left';
+  var time_left = time, k = slideshow.getCurrentSlideIndex(),
+      last_page_number = current_page_number(k);
+
+  setInterval(function() {
+    time_left = time_left - 1000;
+    timer.innerHTML = ' ' + time_format(time_left);
+    if (time_left < 0) timer.style.color = 'red';
+  }, 1000);
+
+  slide_number_div(k).appendChild(timer);
+
+  slideshow.on('showSlide', function(slide) {
+    var i = slide.getSlideIndex(), n = current_page_number(i);
+    // reset timer when a new slide is shown and the page number is changed
+    if (last_page_number !== n) {
+      time_left = time; last_page_number = n;
+      timer.innerHTML = ' ' + time_format(time); timer.style.color = null;
+    }
+    slide_number_div(i).appendChild(timer);
+  });
+})(60000);
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
