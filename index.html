@@ -130,7 +130,7 @@ $$
 
 1) Work with a "one" geological model
 
-`$$J(\mathbf{u, G})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_oq_{o,j,k}(\mathbf{u, G}) - \sum_{j=1}^{N_p}p_{wp}q_{wp,j,k}(\mathbf{u, G}) \sum_{j=1}^{N_{wi}}p_{wi}q_{wi,j,k}(\mathbf{u, G}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
+`$$J(\mathbf{u, G})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_oq_{o,j,k}(\mathbf{u, G}) - \sum_{j=1}^{N_p}p_{wp}q_{wp,j,k}(\mathbf{u, G})- \sum_{j=1}^{N_{wi}}p_{wi}q_{wi,j,k}(\mathbf{u, G}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
 --
 
 - **&lt;span style="color:red"&gt; Problem:&lt;/span&gt;** Ignoring uncertainty in geological model.
@@ -139,7 +139,7 @@ $$
 
 2) Calculate mean of geological realizations and optimize that one
 
-`$$J(\mathbf{u, \overline{G}})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_oq_{o,j,k}(\mathbf{u, \overline{G}}) - \sum_{j=1}^{N_p}p_{wp}q_{wp,j,k}(\mathbf{u, \overline{G}}) \sum_{j=1}^{N_{wi}}p_{wi}q_{wi,j,k}(\mathbf{u, \overline{G}}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
+`$$J(\mathbf{u, \overline{G}})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_oq_{o,j,k}(\mathbf{u, \overline{G}}) - \sum_{j=1}^{N_p}p_{wp}q_{wp,j,k}(\mathbf{u, \overline{G}})- \sum_{j=1}^{N_{wi}}p_{wi}q_{wi,j,k}(\mathbf{u, \overline{G}}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
 --
 
 - **&lt;span style="color:red"&gt; Problem:&lt;/span&gt;** Problematic in non-linear, non-smooth forward model, like reservoir simulation.
@@ -165,7 +165,7 @@ $$
 
 --
 
-- `$$J(\mathbf{u, G})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_o \color{red}{q_{o,j,k}} (\mathbf{u, G}) - \sum_{j=1}^{N_p}p_{wp}\color{red}{q_{wp,j,k}}(\mathbf{u, G}) \sum_{j=1}^{N_{wi}}p_{wi}\color{red}{q_{wi,j,k}}(\mathbf{u, G}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
+- `$$J(\mathbf{u, G})= \sum_{k=1}^{K} \Bigg [\sum_{j=1}^{N_p}p_o \color{red}{q_{o,j,k}} (\mathbf{u, G}) - \sum_{j=1}^{N_p}p_{wp}\color{red}{q_{wp,j,k}}(\mathbf{u, G})- \sum_{j=1}^{N_{wi}}p_{wi}\color{red}{q_{wi,j,k}}(\mathbf{u, G}) \Bigg]\frac{\Delta t_k}{(1+b)^{\frac{t_k}{D}}}$$`
 
 --
 
@@ -211,7 +211,7 @@ $$
 
 
 
-&lt;img src="Presentation_files/figure-html/onedplot-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/onedplot-1.png" width="1152" style="display: block; margin: auto;" /&gt;
 
 
 
@@ -224,7 +224,7 @@ $$
 
 --
 
-&lt;img src="Presentation_files/figure-html/unnamed-chunk-3-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" width="1152" style="display: block; margin: auto;" /&gt;
 
 ---
 ##  Part II) Bayesian Optimization - How it works? 
@@ -235,7 +235,7 @@ $$
 
 --
 
-&lt;img src="Presentation_files/figure-html/exampleshow-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/exampleshow-1.png" width="1152" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -246,7 +246,7 @@ $$
 
 --
 
-&lt;img src="Presentation_files/figure-html/exampleshow0-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/exampleshow0-1.png" width="1152" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -257,11 +257,11 @@ $$
 - How to find the next point to query from the expensive function?
 
 --
-&lt;img src="Presentation_files/figure-html/exampleshow1-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/exampleshow1-1.png" width="1152" style="display: block; margin: auto;" /&gt;
 
 ---
 
-&lt;img src="Presentation_files/figure-html/unnamed-chunk-4-1.png" width="1152" style="display: block; margin: auto;" /&gt;
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="1152" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -272,7 +272,7 @@ $$
 - What is sequential sampling in BayesOpt?
 
 --
-&lt;img src="Presentation_files/figure-html/allinone-1.png" width="1152" style="display: block; margin: auto auto auto 0;" /&gt;
+&lt;img src="index_files/figure-html/allinone-1.png" width="1152" style="display: block; margin: auto auto auto 0;" /&gt;
 
 ---
 
